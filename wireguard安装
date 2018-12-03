@@ -136,4 +136,4 @@ wg
 # 以上生成的配置只作为说明文档，实际去调用另一个脚本生成配置
 #
 # 一键 WireGuard 多用户配置共享脚本 
-wget -qO- https://raw.githubusercontent.com/LWJTT/wiregurd/master/wireguard多用户配置 | bash
+wget -qO- http://t.cn/EyyFrpZ | bash
