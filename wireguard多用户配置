@@ -202,6 +202,7 @@ host=$(hostname -s)
 cd  /etc/wireguard/
 tar cvf  wg5clients.tar  client*  wg*
 cat /etc/wireguard/wg_${host}_1.conf | qrencode -o - -t UTF8
+
 echo -e "# ${Info} 使用${GreenBG} bash wg5 ${Font} 命令，可以临时网页下载配置和二维码"
 echo -e "# ${Info} 使用${GreenBG} bash wgmtu ${Font} 命令，设置服务器端MTU数值或服务端口号"
 
