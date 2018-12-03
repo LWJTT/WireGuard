@@ -202,25 +202,12 @@ host=$(hostname -s)
 cd  /etc/wireguard/
 tar cvf  wg5clients.tar  client*  wg*
 cat /etc/wireguard/wg_${host}_1.conf | qrencode -o - -t UTF8
-echo "# 手机扫描二维码2号配置，PC使用配置复制下面文本"
-
-cat /etc/wireguard/client.conf       && next
-cat /etc/wireguard/wg_${host}_1.conf   && next
-cat /etc/wireguard/wg_${host}_2.conf   && next
-cat /etc/wireguard/wg_${host}_3.conf   && next
-cat /etc/wireguard/wg_${host}_4.conf   && next
-
-echo -e "${RedBG}   一键安装 WireGuard 脚本 For Debian_9 Ubuntu Centos_7   ${Font}"
-echo -e "${GreenBG}    开源项目：https://github.com/hongwenjun/vps_setup    ${Font}"
-echo
 echo -e "# ${Info} 使用${GreenBG} bash wg5 ${Font} 命令，可以临时网页下载配置和二维码"
 echo -e "# ${Info} 使用${GreenBG} bash wgmtu ${Font} 命令，设置服务器端MTU数值或服务端口号"
 
 # echo -e "# ${Info} 请网页打开 ${GreenBG}${conf_url}${Font} 下载配置文件 wg5clients.tar ，${RedBG}注意: 完成后请重启VPS.${Font}"
 # echo -e "#  scp root@10.0.0.1:/etc/wireguard/wg5clients.tar   wg5clients.tar"
 # python -m SimpleHTTPServer 8000 &
-echo ""
-# echo -e "#  ${Info} 访问 ${GreenBG}${conf_url}${Font} 有惊喜， 手机扫描二维码后请立即重启VPS。"
 
 EOF
 
