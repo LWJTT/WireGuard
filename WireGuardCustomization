@@ -100,46 +100,7 @@ fi
 wget -O ~/wgmtu  https://raw.githubusercontent.com/hongwenjun/vps_setup/master/Wireguard/wgmtu.sh
 
 # 多用户配置
-echo -e "${GreenBG} 请输入客户端配置数量 ${Font}"
-read -p "请输入数字(3--218): " num_x
-
-if [[ ${num_x} -ge 3 ]] && [[ ${num_x} -le 218 ]]; then
- wg_num=OK
-else
-  num_x=5
-fi
-
-for i in `seq 2 250`
-do
-    ip=10.0.0.${i}
-    wg genkey | tee cprivatekey | wg pubkey > cpublickey
-
-    cat <<EOF >>wg0.conf
-[Peer]
-PublicKey = $(cat cpublickey)
-AllowedIPs = $ip/32
-
-EOF
-
-    cat <<EOF >wg_${host}_$i.conf
-[Interface]
-PrivateKey = $(cat cprivatekey)
-Address = $ip/24
-DNS = 8.8.8.8
-
-[Peer]
-PublicKey = $(cat spublickey)
-Endpoint = $serverip:$port
-AllowedIPs = 0.0.0.0/0, ::0/0
-PersistentKeepalive = 25
-
-EOF
-    cat /etc/wireguard/wg_${host}_$i.conf| qrencode -o wg_${host}_$i.png
-
-    if [ $i -ge $num_x ]; then
-        break
-    fi
-done
+wget -qO- raw.githubusercontent.com/hongwenjun/vps_setup/master/Wireguard/wg_clients.sh | bash
 
 #  vps网卡如果不是eth0，修改成实际网卡
 ni=$(ls /sys/class/net | awk {print} | grep -e eth. -e ens. -e venet.)
