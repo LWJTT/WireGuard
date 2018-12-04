@@ -100,36 +100,8 @@ fi
 wget -O ~/wgmtu  https://raw.githubusercontent.com/hongwenjun/vps_setup/master/Wireguard/wgmtu.sh
 
 # 多用户配置
-#定义文字颜色
-Green="\033[32m"  && Red="\033[31m" && GreenBG="\033[42;37m" && RedBG="\033[41;37m" && Font="\033[0m"
-
-#定义提示信息
-Info="${Green}[信息]${Font}"  &&  OK="${Green}[OK]${Font}"  &&  Error="${Red}[错误]${Font}"
-
-# 转到wg配置文件目录
-cd /etc/wireguard
-
-echo -e   "${RedBG}重置 WireGuard 客户端配置数量，方便修改过端口或者机场大佬${Font}"
-echo -e "${GreenBG}    开源项目：https://github.com/hongwenjun/vps_setup    ${Font}"
-echo
-echo -e "# ${Info} 使用${GreenBG} bash wg5 ${Font} 命令，可以临时网页下载配置和二维码"
-echo -e "# ${Info} 使用${GreenBG} bash wgmtu ${Font} 命令，设置服务器端MTU数值或服务端口号"
-echo
-echo -e "${GreenBG} 请输入客户端配置数量 ${Font}"
-read -p "请输入数字(3--218): " num_x
-
-if [[ ${num_x} -ge 3 ]] && [[ ${num_x} -le 218 ]]; then
- wg_num=OK
-else
-  num_x=5
-fi
-
-# 删除原1号配置，让IP和配置号对应; 保留原来服务器的端口等配置
-rm  /etc/wireguard/wg_${host}_*   >/dev/null 2>&1
-head -n 13  conf.wg0.bak > wg0.conf
-
-# 修改用户配置数量
-for i in `seq 2 250`
+ip_list=(2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100)
+for i in `seq 2 100`
 do
     ip=10.0.0.${i}
     wg genkey | tee cprivatekey | wg pubkey > cpublickey
@@ -175,7 +147,7 @@ next() {
     printf "# %-70s\n" "-" | sed 's/\s/-/g'
 }
 
-host=$(hostname -s)
+host=user
 
 cd  /etc/wireguard/
 tar cvf  wg5clients.tar  client*  wg*
