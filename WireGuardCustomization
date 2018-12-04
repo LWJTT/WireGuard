@@ -38,6 +38,8 @@ if [ ! -f '/usr/bin/curl' ]; then
 fi
 serverip=$(curl -4 icanhazip.com)
 
+#!/bin/bash
+
 #生成随机端口
 rand(){
     min=$1
