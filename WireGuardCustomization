@@ -20,50 +20,23 @@ apt update
 # 开始安装 WireGuard ，和辅助库 resolvconf
 apt install wireguard resolvconf -y
 
-#生成随机端口
-rand(){
-    min=$1
-    max=$(($2-$min+1))
-    num=$(cat /dev/urandom | head -n 10 | cksum | awk -F ' ' '{print $1}')
-    echo $(($num%$max+$min))  
-}
+# 验证是否安装成功
+modprobe wireguard && lsmod | grep wireguard
 
-port=$(rand 1000 60000)
+# 配置步骤 WireGuard服务端
 
-# 修改mtu数值
-setmtu(){
-    echo -e "${GreenBG}WireGuard 修改服务器端MTU值，最大效率加大网速，默认值 MTU = 1420 "
-    echo -e "WireGuard 客户端可以MTU参数自动，请修改电脑客户端TunSafe配置把MTU行注释掉。${Font}"
-    read -p "请输入数字(1200--1500): " num
+# 首先进入配置文件目录
+mkdir -p /etc/wireguard
+cd /etc/wireguard
 
-    if [[ ${num} -ge 1200 ]] && [[ ${num} -le 1500 ]]; then
-       mtu=$num
-    else
-       mtu=1420
-    fi
-
-# 多用户文件名
-host=用户
+# 然后开始生成 密匙对(公匙+私匙)。
+wg genkey | tee sprivatekey | wg pubkey > spublickey
 
 # 获得服务器ip，自动获取
 if [ ! -f '/usr/bin/curl' ]; then
     apt update && apt install -y curl 
 fi
 serverip=$(curl -4 icanhazip.com)
-
-# 安装二维码插件
-if [ ! -f '/usr/bin/qrencode' ]; then
-    apt -y install qrencode
-fi
-
-# 安装 bash wgmtu 脚本用来设置服务器
-wget -O ~/wgmtu  https://raw.githubusercontent.com/hongwenjun/vps_setup/master/Wireguard/wgmtu.sh
-
-# 转到wg配置文件目录
-cd /etc/wireguard
-
-# 然后开始生成 密匙对(公匙+私匙)。
-wg genkey | tee sprivatekey | wg pubkey > spublickey
 
 # 生成服务端配置文件
 cat <<EOF >wg0.conf
@@ -100,6 +73,39 @@ sysctl -p
 
 # 设置开机启动
 systemctl enable wg-quick@wg0
+
+#生成随机端口
+rand(){
+    min=$1
+    max=$(($2-$min+1))
+    num=$(cat /dev/urandom | head -n 10 | cksum | awk -F ' ' '{print $1}')
+    echo $(($num%$max+$min))  
+}
+
+port=$(rand 1000 60000)
+
+# 修改mtu数值
+setmtu(){
+    echo -e "${GreenBG}WireGuard 修改服务器端MTU值，最大效率加大网速，默认值 MTU = 1420 "
+    echo -e "WireGuard 客户端可以MTU参数自动，请修改电脑客户端TunSafe配置把MTU行注释掉。${Font}"
+    read -p "请输入数字(1200--1500): " num
+
+    if [[ ${num} -ge 1200 ]] && [[ ${num} -le 1500 ]]; then
+       mtu=$num
+    else
+       mtu=1420
+    fi
+
+# 多用户文件名
+host=用户
+
+# 安装二维码插件
+if [ ! -f '/usr/bin/qrencode' ]; then
+    apt -y install qrencode
+fi
+
+# 安装 bash wgmtu 脚本用来设置服务器
+wget -O ~/wgmtu  https://raw.githubusercontent.com/hongwenjun/vps_setup/master/Wireguard/wgmtu.sh
 
 # 多用户配置
 echo -e "${GreenBG} 请输入客户端配置数量 ${Font}"
