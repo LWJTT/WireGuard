@@ -136,6 +136,7 @@ fi
 wg-quick up wg0
 
 # 打包客户端配置
+cd /etc/wireguard
 tar cvf  wg5clients.tar  user*
 
 echo -e "# ${Info} 使用${GreenBG} bash wg5 ${Font} 命令，可以临时网页下载配置和二维码"
