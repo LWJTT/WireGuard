@@ -71,6 +71,9 @@ echo 1 > /proc/sys/net/ipv4/ip_forward
 echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
 sysctl -p
 
+# 启动WireGuard
+wg-quick up wg0
+
 # 设置开机启动
 systemctl enable wg-quick@wg0
 
@@ -97,7 +100,7 @@ setmtu(){
     fi
 
 # 多用户文件名
-host=用户
+host=user
 
 # 安装二维码插件
 if [ ! -f '/usr/bin/qrencode' ]; then
