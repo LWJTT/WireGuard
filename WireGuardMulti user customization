@@ -1,0 +1,183 @@
+#!/bin/bash
+
+# 更新软件包源
+apt update
+
+# 安装和 linux-image 内核版本相对于的 linux-headers 内核
+apt install linux-headers-$(uname -r) -y
+
+# Debian9 安装后内核列表
+dpkg -l|grep linux-headers
+
+# 安装WireGuard
+# 添加 unstable 软件包源，以确保安装版本是最新的
+echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
+echo -e 'Package: *\nPin: release a=unstable\nPin-Priority: 150' > /etc/apt/preferences.d/limit-unstable
+ 
+# 更新一下软件包源
+apt update
+ 
+# 开始安装 WireGuard ，和辅助库 resolvconf
+apt install wireguard resolvconf -y
+
+# 验证是否安装成功
+modprobe wireguard && lsmod | grep wireguard
+
+#生成随机端口
+rand(){
+    min=$1
+    max=$(($2-$min+1))
+    num=$(cat /dev/urandom | head -n 10 | cksum | awk -F ' ' '{print $1}')
+    echo $(($num%$max+$min))  
+}
+
+port=$(rand 1000 60000)
+
+# 修改mtu数值
+setmtu(){
+    echo -e "${GreenBG}WireGuard 修改服务器端MTU值，最大效率加大网速，默认值 MTU = 1420 "
+    echo -e "WireGuard 客户端可以MTU参数自动，请修改电脑客户端TunSafe配置把MTU行注释掉。${Font}"
+    read -p "请输入数字(1200--1500): " num
+
+    if [[ ${num} -ge 1200 ]] && [[ ${num} -le 1500 ]]; then
+       mtu=$num
+    else
+       mtu=1420
+    fi
+
+# 多用户文件名
+host=用户
+
+# 获得服务器ip，自动获取
+if [ ! -f '/usr/bin/curl' ]; then
+    apt update && apt install -y curl 
+fi
+serverip=$(curl -4 icanhazip.com)
+
+# 安装二维码插件
+if [ ! -f '/usr/bin/qrencode' ]; then
+    apt -y install qrencode
+fi
+
+# 安装 bash wgmtu 脚本用来设置服务器
+wget -O ~/wgmtu  https://raw.githubusercontent.com/hongwenjun/vps_setup/master/Wireguard/wgmtu.sh
+
+# 转到wg配置文件目录
+cd /etc/wireguard
+
+# 然后开始生成 密匙对(公匙+私匙)。
+wg genkey | tee sprivatekey | wg pubkey > spublickey
+
+# 生成服务端配置文件
+cat <<EOF >wg0.conf
+[Interface]
+PrivateKey = $(cat sprivatekey)
+Address = 10.0.0.1/24 
+PostUp   = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+ListenPort = $port
+DNS = 8.8.8.8
+MTU = $mtu
+
+EOF
+
+# 赋予配置文件夹权限
+chmod 777 -R /etc/wireguard
+ 
+sysctl_config() {
+    sed -i '/net.core.default_qdisc/d' /etc/sysctl.conf
+    sed -i '/net.ipv4.tcp_congestion_control/d' /etc/sysctl.conf
+    echo "net.core.default_qdisc = fq" >> /etc/sysctl.conf
+    echo "net.ipv4.tcp_congestion_control = bbr" >> /etc/sysctl.conf
+    sysctl -p >/dev/null 2>&1
+}
+
+# 开启 BBR
+sysctl_config
+lsmod | grep bbr
+ 
+# 打开防火墙转发功能
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo "net.ipv4.ip_forward = 1" >> /etc/sysctl.conf
+sysctl -p
+
+# 设置开机启动
+systemctl enable wg-quick@wg0
+
+# 多用户配置
+echo -e "${GreenBG} 请输入客户端配置数量 ${Font}"
+read -p "请输入数字(3--218): " num_x
+
+if [[ ${num_x} -ge 3 ]] && [[ ${num_x} -le 218 ]]; then
+ wg_num=OK
+else
+  num_x=5
+fi
+
+for i in `seq 2 250`
+do
+    ip=10.0.0.${i}
+    wg genkey | tee cprivatekey | wg pubkey > cpublickey
+
+    cat <<EOF >>wg0.conf
+[Peer]
+PublicKey = $(cat cpublickey)
+AllowedIPs = $ip/32
+
+EOF
+
+    cat <<EOF >wg_${host}_$i.conf
+[Interface]
+PrivateKey = $(cat cprivatekey)
+Address = $ip/24
+DNS = 8.8.8.8
+
+[Peer]
+PublicKey = $(cat spublickey)
+Endpoint = $serverip:$port
+AllowedIPs = 0.0.0.0/0, ::0/0
+PersistentKeepalive = 25
+
+EOF
+    cat /etc/wireguard/wg_${host}_$i.conf| qrencode -o wg_${host}_$i.png
+
+    if [ $i -ge $num_x ]; then
+        break
+    fi
+done
+
+#  vps网卡如果不是eth0，修改成实际网卡
+ni=$(ls /sys/class/net | awk {print} | grep -e eth. -e ens. -e venet.)
+if [ $ni != "eth0" ]; then
+    sed -i "s/eth0/${ni}/g"  /etc/wireguard/wg0.conf
+fi
+
+# 重启wg服务器
+wg-quick up wg0
+
+# 打包客户端配置
+next() {
+    printf "# %-70s\n" "-" | sed 's/\s/-/g'
+}
+
+host=$(hostname -s)
+
+cd  /etc/wireguard/
+tar cvf  wg5clients.tar  client*  wg*
+cat /etc/wireguard/wg_${host}_1.conf | qrencode -o - -t UTF8
+
+echo -e "# ${Info} 使用${GreenBG} bash wg5 ${Font} 命令，可以临时网页下载配置和二维码"
+echo -e "# ${Info} 使用${GreenBG} bash wgmtu ${Font} 命令，设置服务器端MTU数值或服务端口号"
+
+echo -e "# ${Info} 请网页打开 ${GreenBG}${conf_url}${Font} 下载配置文件 wg5clients.tar ，${RedBG}注意: 完成后请重启VPS.${Font}"
+echo -e "#  scp root@10.0.0.1:/etc/wireguard/wg5clients.tar   wg5clients.tar"
+python -m SimpleHTTPServer 8000 &
+
+EOF
+
+# 显示服务器配置信息
+bash ~/wg5
+
+# 用户选择下载配置和修改mtu
+sed -i "s/# python -m/python -m/g"  ~/wg5
+sed -i "s/# echo -e/echo -e/g"  ~/wg5
