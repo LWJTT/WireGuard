@@ -20,13 +20,6 @@ apt update
 # 开始安装 WireGuard ，和辅助库 resolvconf
 apt install wireguard resolvconf -y
 
-# 验证是否安装成功
-modprobe wireguard && lsmod | grep wireguard
-
-# 首先进入配置文件目录
-mkdir -p /etc/wireguard
-cd /etc/wireguard
-
 #生成随机端口
 rand(){
     min=$1
