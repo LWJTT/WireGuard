@@ -38,6 +38,28 @@ if [ ! -f '/usr/bin/curl' ]; then
 fi
 serverip=$(curl -4 icanhazip.com)
 
+#生成随机端口
+rand(){
+    min=$1
+    max=$(($2-$min+1))
+    num=$(cat /dev/urandom | head -n 10 | cksum | awk -F ' ' '{print $1}')
+    echo $(($num%$max+$min))  
+}
+
+port=$(rand 1000 60000)
+
+# 修改mtu数值
+setmtu(){
+    echo -e "${GreenBG}WireGuard 修改服务器端MTU值，最大效率加大网速，默认值 MTU = 1420 "
+    echo -e "WireGuard 客户端可以MTU参数自动，请修改电脑客户端TunSafe配置把MTU行注释掉。${Font}"
+    read -p "请输入数字(1200--1500): " num
+
+    if [[ ${num} -ge 1200 ]] && [[ ${num} -le 1500 ]]; then
+       mtu=$num
+    else
+       mtu=1420
+    fi
+
 # 生成服务端配置文件
 cat <<EOF >wg0.conf
 [Interface]
@@ -76,28 +98,6 @@ wg-quick up wg0
 
 # 设置开机启动
 systemctl enable wg-quick@wg0
-
-#生成随机端口
-rand(){
-    min=$1
-    max=$(($2-$min+1))
-    num=$(cat /dev/urandom | head -n 10 | cksum | awk -F ' ' '{print $1}')
-    echo $(($num%$max+$min))  
-}
-
-port=$(rand 1000 60000)
-
-# 修改mtu数值
-setmtu(){
-    echo -e "${GreenBG}WireGuard 修改服务器端MTU值，最大效率加大网速，默认值 MTU = 1420 "
-    echo -e "WireGuard 客户端可以MTU参数自动，请修改电脑客户端TunSafe配置把MTU行注释掉。${Font}"
-    read -p "请输入数字(1200--1500): " num
-
-    if [[ ${num} -ge 1200 ]] && [[ ${num} -le 1500 ]]; then
-       mtu=$num
-    else
-       mtu=1420
-    fi
 
 # 多用户文件名
 host=user
