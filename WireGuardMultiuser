@@ -110,7 +110,7 @@ AllowedIPs = $ip/32
 
 EOF
 
-    cat <<EOF >wg_${host}_$i.conf
+    cat <<EOF >${host}_$i.conf
 [Interface]
 PrivateKey = $(cat cprivatekey)
 Address = $ip/24
