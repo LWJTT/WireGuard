@@ -110,7 +110,7 @@ AllowedIPs = $ip/32
 
 EOF
 
-    cat <<EOF >${host}$i.conf
+    cat <<EOF >${host}_$i.conf
 [Interface]
 PrivateKey = $(cat cprivatekey)
 Address = $ip/24
@@ -123,7 +123,7 @@ AllowedIPs = 0.0.0.0/0, ::0/0
 PersistentKeepalive = 25
 
 EOF
-    cat /etc/wireguard/${host}$i.conf| qrencode -o ${host}$i.png
+    cat /etc/wireguard/${host}_$i.conf| qrencode -o ${host}_$i.png
 done
 
 #  vps网卡如果不是eth0，修改成实际网卡
@@ -144,7 +144,7 @@ host=user
 
 cd  /etc/wireguard/
 tar cvf  wg5clients.tar  user*
-cat /etc/wireguard/${host}1.conf | qrencode -o - -t UTF8
+cat /etc/wireguard/${host}_1.conf | qrencode -o - -t UTF8
 
 echo -e "# ${Info} 使用${GreenBG} bash wg5 ${Font} 命令，可以临时网页下载配置和二维码"
 echo -e "# ${Info} 使用${GreenBG} bash wgmtu ${Font} 命令，设置服务器端MTU数值或服务端口号"
