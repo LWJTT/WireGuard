@@ -47,18 +47,7 @@ rand(){
 }
 
 port=$(rand 1000 60000)
-
-# 修改mtu数值
-setmtu(){
-    echo -e "${GreenBG}WireGuard 修改服务器端MTU值，最大效率加大网速，默认值 MTU = 1420 "
-    echo -e "WireGuard 客户端可以MTU参数自动，请修改电脑客户端TunSafe配置把MTU行注释掉。${Font}"
-    read -p "请输入数字(1200--1500): " num
-
-    if [[ ${num} -ge 1200 ]] && [[ ${num} -le 1500 ]]; then
-       mtu=$num
-    else
-       mtu=1420
-    fi
+mtu=1420
 
 # 生成服务端配置文件
 cat <<EOF >wg0.conf
