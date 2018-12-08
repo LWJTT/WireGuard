@@ -3,7 +3,6 @@
 # 服务器 IP 和 端口
 port=$(wg | grep 'listening port:' | awk '{print $3}')
 serverip=$(curl -4 icanhazip.com)
-host=user
 
 #定义文字颜色
 Green="\033[32m"  && Red="\033[31m" && GreenBG="\033[42;37m" && RedBG="\033[41;37m" && Font="\033[0m"
@@ -26,7 +25,7 @@ else
 fi
 
 # 删除原1号配置，让IP和配置号对应; 保留原来服务器的端口等配置
-rm  /etc/wireguard/${host}*   >/dev/null 2>&1
+rm  /etc/wireguard/user*   >/dev/null 2>&1
 head -n 13  conf.wg0.bak > wg0.conf
 
 # 修改用户配置数量
@@ -42,7 +41,7 @@ AllowedIPs = $ip/32
 
 EOF
 
-    cat <<EOF >${host}$i.conf
+    cat <<EOF >user$i.conf
 [Interface]
 PrivateKey = $(cat cprivatekey)
 Address = $ip/24
@@ -55,7 +54,7 @@ AllowedIPs = 0.0.0.0/0, ::0/0
 PersistentKeepalive = 25
 
 EOF
-    cat /etc/wireguard/${host}$i.conf| qrencode -o ${host}$i.png
+    cat /etc/wireguard/user$i.conf| qrencode -o user$i.png
 
     if [ $i -ge $num_x ]; then
         break
