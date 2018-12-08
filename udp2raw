@@ -17,7 +17,7 @@ Green="\033[32m"  && Red="\033[31m" && GreenBG="\033[42;37m" && RedBG="\033[41;3
 install_udp2raw()
 {
     # 下载 UDP2RAW
-    wget https://github.com/wangyu-/udp2raw-tunnel/releases/download/20181113.0/udp2raw_binaries.tar.gz
+    wget https://github.com/LWJTT/WireGuard/blob/master/udp2raw_binaries.tar.gz
     tar xf udp2raw_binaries.tar.gz
     mv udp2raw_amd64 /usr/bin/udp2raw
     rm udp2raw* -rf
