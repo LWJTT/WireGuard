@@ -131,6 +131,7 @@ if [ $ni != "eth0" ]; then
 fi
 
 # 重启wg服务器
+wg-quick down wg0
 wg-quick up wg0
 
 # 打包客户端配置
