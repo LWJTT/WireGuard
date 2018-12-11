@@ -153,3 +153,10 @@ bash ~/wg5
 # 用户选择下载配置和修改mtu
 sed -i "s/# python -m/python -m/g"  ~/wg5
 sed -i "s/# echo -e/echo -e/g"  ~/wg5
+
+# 文本显示一个配置文件
+cat user2.conf
+
+# 把配置文件使用通道传到二维码软件
+# -o- 表示显示在屏幕 -t utf8 文本格式
+cat user2.conf  | qrencode -o- -t utf8
