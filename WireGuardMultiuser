@@ -157,5 +157,3 @@ sed -i "s/# echo -e/echo -e/g"  ~/wg5
 # 把配置文件使用通道传到二维码软件
 # -o- 表示显示在屏幕 -t utf8 文本格式
 cat user2.conf  | qrencode -o- -t utf8
-
-echo -e "${GreenBG}# 手机扫描二维码2号配置，更多配置文件使用命令bash wg5下载
