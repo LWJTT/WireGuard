@@ -138,14 +138,14 @@ wg-quick up wg0
 cd /etc/wireguard
 tar cvf  wg5clients.tar  user*
 
-echo -e "# ${Info} 使用${GreenBG} bash wg5 ${Font} 命令，可以临时网页下载配置和二维码"
-echo -e "# ${Info} 使用${GreenBG} bash wgmtu ${Font} 命令，设置服务器端MTU数值或服务端口号"
+echo -e "# ${Info} 新手使用${GreenBG} bash wg5 ${Font} 命令，使用临时网页下载配置和手机客户端二维码配置"
+echo -e "# ${Info} 大佬使用${GreenBG} bash wgmtu ${Font} 命令，服务端高级配置; (至少能vim wgmtu会看脚本爱折腾玩家)"
 
-echo -e "# ${Info} 请网页打开 ${GreenBG}${conf_url}${Font} 下载配置文件 wg5clients.tar ，${RedBG}注意: 完成后请重启VPS.${Font}"
-echo -e "#  scp root@10.0.0.1:/etc/wireguard/wg5clients.tar   wg5clients.tar"
-python -m SimpleHTTPServer 8000 &
-
-EOF
+# echo -e "# ${Info} 请网页打开 ${GreenBG}${conf_url}${Font} 下载配置文件 wg5clients.tar ，${RedBG}注意: 完成后请重启VPS.${Font}"
+# echo -e "#  scp root@10.0.0.1:/etc/wireguard/wg5clients.tar   wg5clients.tar"
+# python -m SimpleHTTPServer 8000 &
+echo ""
+# echo -e "#  ${Info} 访问 ${GreenBG}${conf_url}${Font} 点PNG二维码， ${RedBG}手机扫描二维码后请立即重启VPS。${Font}"
 
 # 显示服务器配置信息
 bash ~/wg5
