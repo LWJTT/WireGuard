@@ -156,4 +156,9 @@ sed -i "s/# echo -e/echo -e/g"  ~/wg5
 
 # 把配置文件使用通道传到二维码软件
 # -o- 表示显示在屏幕 -t utf8 文本格式
+echo -e "${GreenBG}# 手机扫描二维码 ${Font}" 
 cat user2.conf  | qrencode -o- -t utf8
+
+#把配置文件以文本方式显示
+echo -e "${GreenBG}# Windows 客户端配置，请复制配置文本 ${Font}" 
+cat /etc/wireguard/user3.conf
