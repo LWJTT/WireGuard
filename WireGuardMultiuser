@@ -47,9 +47,6 @@ rand(){
 }
 port=$(rand 1000 60000)
 
-#设定mtu值
-mtu=1420
-
 # 生成服务端配置文件
 cat <<EOF >wg0.conf
 [Interface]
@@ -59,7 +56,7 @@ PostUp   = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j A
 PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -D FORWARD -o wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
 ListenPort = $port
 DNS = 8.8.8.8
-MTU = $mtu
+MTU = 1420
 
 EOF
 
@@ -113,6 +110,7 @@ EOF
 PrivateKey = $(cat cprivatekey)
 Address = $ip/24
 DNS = 8.8.8.8
+MTU = 1420
 
 [Peer]
 PublicKey = $(cat spublickey)
