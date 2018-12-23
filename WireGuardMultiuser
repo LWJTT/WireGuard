@@ -13,6 +13,9 @@ dpkg -l|grep linux-headers
 echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/unstable.list
 echo -e 'Package: *\nPin: release a=unstable\nPin-Priority: 150' > /etc/apt/preferences.d/limit-unstable
  
+ # 更新软件包源
+apt update
+
 # 开始安装 WireGuard ，和辅助库 resolvconf
 apt install wireguard resolvconf -y
 
